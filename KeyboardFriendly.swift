@@ -27,23 +27,10 @@ import UIKit
  *    the controller, put the activate and deactivate calls in `viewDidAppear` and `viewDidDisappear`,
  *    respectively.)
  *
- * 5. (optional) If you want to auto-scroll the view to show the field being edited, then override computed
- *    `var keyboardFriendlyKeepOnscreen: CGRect` to return the rect area of the current field.  Return
- *    `CGRect.zero` (a.k.a. `CGRectZero`) for no auto-scrolling.*
- *
- *    A basic implementation is to track the bounds of the first responder in a concrete instance variable,
- *    and have `keyboardFriendlyKeepOnscreen` return that variable's value:
- *
- *    ```
- *    var firstResponderBounds: CGRect?
- *    override var keyboardFriendlyKeepOnscreen: CGRect { return self.firstResponderBounds ?? CGRect.zero }
- *    ```
- *
- * Note that the rect must be in the scroll view's coordinate system!
- *
- * *Why use `CGRect.zero` to mean "no scrolling" instead of returning an optional?  Current Swift limitations
- * (2.2): declarations in an extension can only be overridden in the main class if they're marked `@objc`,
- * but the `CGRect?` type can't be represented in Objective-C code.
+ * Automatic scrolling to make sure a particular item is visible is not included, because UIScrollViews
+ * automatically do that by themselves when a text control becomes the first responder, and it's very
+ * difficult to disable that behavior and replace it with your own scrolling.  That contradicts Apple's
+ * own documentation on how to do that, unfortunately.
  */
 extension UIViewController {
 
@@ -51,13 +38,6 @@ extension UIViewController {
     @objc var keyboardFriendlyScrollView: UIScrollView? {
         get {
             return nil
-        }
-    }
-
-
-    @objc var keyboardFriendlyKeepOnscreen: CGRect {
-        get {
-            return CGRect.zero
         }
     }
 
@@ -105,11 +85,6 @@ extension UIViewController {
         let contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: endSize.height, right: 0.0)
         scrollView.contentInset = contentInsets
         scrollView.scrollIndicatorInsets = contentInsets
-
-        let rect = self.keyboardFriendlyKeepOnscreen
-        if rect != CGRect.zero {
-            scrollView.scrollRectToVisible(rect, animated: true)
-        }
     }
 
 
